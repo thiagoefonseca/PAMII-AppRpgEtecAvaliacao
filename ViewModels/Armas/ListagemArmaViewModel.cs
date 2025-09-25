@@ -8,6 +8,8 @@ using System.Windows.Input;
 using AppRpgEtec.Models;
 using AppRpgEtec.Services.Armas;
 
+//teste
+
 namespace AppRpgEtec.ViewModels.Armas
 {
     public class ListagemArmaViewModel : BaseViewModel
