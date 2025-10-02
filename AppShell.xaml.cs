@@ -1,4 +1,5 @@
-﻿using AppRpgEtec.Views.Personagens;
+﻿using AppRpgEtec.Views.Armas;
+using AppRpgEtec.Views.Personagens;
 
 namespace AppRpgEtec
 {
@@ -8,7 +9,11 @@ namespace AppRpgEtec
         {
             InitializeComponent();
 
+            String login = Preferences.Get("UsuarioUsername", string.Empty);
+            lblLogin.Text = login;
+
             Routing.RegisterRoute("cadPersonagemView", typeof(CadastroPersonagemView));
+            Routing.RegisterRoute("cadArmaView", typeof(CadastroArmaView));
         }
     }
 }
