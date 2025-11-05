@@ -19,6 +19,14 @@ namespace AppRpgEtec.Services.Usuarios
             _request = new Request();
         }
 
+        public async Task<Usuario> GetUsuarioAsync(int usuarioId)
+        {
+            string urlComplementar = string.Format("/{0}", usuarioId);
+            var usuario = await
+                _request.GetAsync<Models.Usuario>(_apiUrlBase + urlComplementar, "");
+            return usuario;
+        }
+
         public async Task<Usuario> PostRegistrarUsuarioAsync(Usuario u)
         {
             string urlComplementar = "/Registrar";
@@ -34,6 +42,14 @@ namespace AppRpgEtec.Services.Usuarios
 
             return u;
         }
+
+        public async Task<int> PutFotoUsuarioAsync(Usuario u)
+        {
+            string urlComplementar = "/AtualizarFoto";
+            var result = await _request.PutAsync(_apiUrlBase + urlComplementar, u, "");
+            return result;
+        }
+
 
 
 
