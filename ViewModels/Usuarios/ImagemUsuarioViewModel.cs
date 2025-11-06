@@ -1,5 +1,6 @@
 ﻿using AppRpgEtec.Models;
 using AppRpgEtec.Services.Usuarios;
+using Azure.Storage.Blobs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,16 +8,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using Xamarin.Essentials;
-using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Input;
 
 namespace AppRpgEtec.ViewModels.Usuarios
 {
     public class ImagemUsuarioViewModel : BaseViewModel
     {
         private UsuarioService uService;
-        private static string conexaoAzureStorage = "colar chave";
+        private static string conexaoAzureStorage = "3JjXuCjsDOrfaFbNQFkIXR3MwKToFDvH4cktg8lIoPgvtWw/MhVLzEgd4biCk8Da3XNKotEMg5DN+AStpv+I2A==";
         private static string container = "arquivos";
 
         //ctor -> criar construtor
@@ -25,7 +24,15 @@ namespace AppRpgEtec.ViewModels.Usuarios
         {
             string token = Preferences.Get("UsuarioToken", string.Empty);
             uService = new UsuarioService();
+
+            FotografarCommand = new Command(Fotografar);
+            SalvarImagemCommand = new Command(SalvarImagemAzure);
+            AbrirGaleriaCommand = new Command(AbrirGaleria);
         }
+
+        public ICommand FotografarCommand { get; }
+        public ICommand SalvarImagemCommand { get; }
+        public ICommand AbrirGaleriaCommand { get; }
 
         private ImageSource fonteImagem;
         private byte[] foto;
@@ -53,7 +60,39 @@ namespace AppRpgEtec.ViewModels.Usuarios
             {
                 if (MediaPicker.Default.IsCaptureSupported)
                 {
-                    fileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+                    FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+
+                    if (photo != null)
+                    {
+                        using (Stream sourceStream = await photo.OpenReadAsync())
+                        {
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                await sourceStream.CopyToAsync(ms);
+
+                                foto = ms.ToArray();
+
+                                fonteImagem = ImageSource.FromStream(() => new MemoryStream(ms.ToArray()));
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage
+                    .DisplayAlert("Ops", ex.Message + "Detalhes: " + ex.InnerException, "Ok");
+            }
+        }
+
+        public async void AbrirGaleria()
+        {
+            try
+            {
+                if (MediaPicker.Default.IsCaptureSupported)
+                {
+                    FileResult photo = await MediaPicker.Default.PickPhotoAsync();
 
                     if (photo != null)
                     {
